@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nidhi, be my Valentine? 💖</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="sparkle"></div>
+
+  <main class="card" aria-label="Valentine card">
+    <h1><span class="names">Nidhi</span>, will you be my Valentine?</h1>
+    <p class="subtext">
+      From <span class="names">Shiven</span> — ChatGPT made this just for you 💖
+    </p>
+
+    <!-- PHOTO GALLERY -->
+    <section class="galleryWrap" aria-label="Photo gallery">
+      <div class="viewer">
+        <img id="mainImg" src="images/IMG_5082.JPG" alt="Shiven and Nidhi photo" />
+      </div>
+
+      <div class="thumbs" id="thumbs">
+        <button class="thumb active" type="button" data-src="IMG_4640.jpeg" data-cap="You're my world 💖">
+          <img src="images/IMG_6035.JPG" alt="Photo 1" />
+        </button>
+        <button class="thumb" type="button" data-src="IMG_5082.jpeg" data-cap="My favorite view 😌">
+          <img src="images/IMG_6829.JPG" alt="Photo 2" />
+        </button>
+        <button class="thumb" type="button" data-src="IMG_6829.jpeg" data-cap="Iconic moments only 😂">
+          <img src="images/IMG_4861.JPG" alt="Photo 3" />
+        </button>
+        <button class="thumb" type="button" data-src="100_0354.jpeg" data-cap="You + me = always 💖">
+          <img src="images/DC184798-5E76-4711-8A2A-9DCF2FE5D8E8.jpeg" alt="Photo 4" />
+        </button>
+      </div>
+    </section>
+
+    <!-- YES/NO -->
+    <section class="stage" id="stage" aria-label="Buttons area">
+      <div class="yesWrap">
+        <button class="btn yes" id="yesBtn" type="button">Yes 💖</button>
+      </div>
+      <button class="btn no" id="noBtn" type="button" aria-label="No button">No 🙃</button>
+    </section>
+
+    <div class="footer">
+      <span>Tip: Try clicking “No” if you can 😌</span>
+    </div>
+  </main>
+
+  <!-- CELEBRATION OVERLAY -->
+  <div class="celebrationOverlay" id="celebrationOverlay" aria-hidden="true">
+    <div class="confettiLayer" id="confettiLayer" aria-hidden="true"></div>
+    <div class="flowerLayer" id="flowerLayer" aria-hidden="true"></div>
+
+    <div class="celebrationCard" role="dialog" aria-label="Valentine accepted dialog">
+      <h2>YAYYYYY 💖💖💖</h2>
+      <p>Nidhi, you just made Shiven the happiest person alive. Valentine’s date is officially locked in 😌</p>
+      <div class="celebrationPhoto">
+        <img src="images/HeelClick.jpeg" alt="Heel click celebration moment" />
+      </div>
+      <button class="closeBtn" id="closeCelebration" type="button">Close</button>
+    </div>
+  </div>
+
+  <script>
+    // --------- Gallery ----------
+    const thumbBtns = document.querySelectorAll(".thumb");
+
+    function setActiveThumb(btn){
+      thumbBtns.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+    }
+
+    thumbBtns.forEach(btn => btn.addEventListener("click", () => setActiveThumb(btn)));
+
+    // --------- No button run away ----------
+    const stage = document.getElementById("stage");
+    const noBtn = document.getElementById("noBtn");
+    const yesBtn = document.getElementById("yesBtn");
+
+    function placeNoInitial(){
+      const r = stage.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+      const x = r.width * 0.62 - b.width / 2;
+      const y = r.height * 0.50 - b.height / 2;
+
+      noBtn.style.left = `${Math.max(12, Math.min(r.width - b.width - 12, x))}px`;
+      noBtn.style.top  = `${Math.max(12, Math.min(r.height - b.height - 12, y))}px`;
+    }
+
+    function runAway(clientX, clientY){
+      const r = stage.getBoundingClientRect();
+      const b = noBtn.getBoundingClientRect();
+
+      const px = clientX - r.left;
+      const py = clientY - r.top;
+
+      const cx = (parseFloat(noBtn.style.left) || 0) + b.width / 2;
+      const cy = (parseFloat(noBtn.style.top) || 0) + b.height / 2;
+
+      let dx = cx - px, dy = cy - py;
+      if (Math.abs(dx) < 1 && Math.abs(dy) < 1) {
+        dx = (Math.random() - 0.5) * 2;
+        dy = (Math.random() - 0.5) * 2;
+      }
+
+      const len = Math.hypot(dx, dy) || 1;
+      dx /= len; dy /= len;
+
+      const jump = 120 + Math.random() * 140;
+      let nx = cx + dx * jump - b.width / 2;
+      let ny = cy + dy * jump - b.height / 2;
+
+      const pad = 12;
+      nx = Math.max(pad, Math.min(r.width - b.width - pad, nx));
+      ny = Math.max(pad, Math.min(r.height - b.height - pad, ny));
+
+      noBtn.style.left = `${nx}px`;
+      noBtn.style.top  = `${ny}px`;
+    }
+
+    // Mouse
+    noBtn.addEventListener("mouseenter", e => runAway(e.clientX, e.clientY));
+    noBtn.addEventListener("mousemove", e => runAway(e.clientX, e.clientY));
+    noBtn.addEventListener("click", e => runAway(e.clientX, e.clientY));
+
+    // Touch
+    noBtn.addEventListener("touchstart", e => {
+      const t = e.touches[0];
+      runAway(t.clientX, t.clientY);
+      e.preventDefault();
+    }, { passive:false });
+
+    // Proximity dodge
+    stage.addEventListener("mousemove", e => {
+      const btn = noBtn.getBoundingClientRect();
+      const dist = Math.hypot(
+        e.clientX - (btn.left + btn.width/2),
+        e.clientY - (btn.top + btn.height/2)
+      );
+      if (dist < 120) runAway(e.clientX, e.clientY);
+    });
+
+    window.addEventListener("load", placeNoInitial);
+    window.addEventListener("resize", placeNoInitial);
+
+    // --------- Hearts ----------
+    function spawnHeart() {
+      const r = stage.getBoundingClientRect();
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.style.left = `${Math.random() * (r.width - 18)}px`;
+      heart.style.bottom = `-10px`;
+      heart.style.animationDuration = `${4.5 + Math.random() * 2.5}s`;
+      stage.appendChild(heart);
+      setTimeout(() => heart.remove(), 7000);
+    }
+
+    setInterval(() => {
+      if (document.hidden) return;
+      if (Math.random() < 0.35) spawnHeart();
+    }, 700);
+
+    // --------- Confetti + flowers on YES ----------
+    const celebrationOverlay = document.getElementById("celebrationOverlay");
+    const confettiLayer = document.getElementById("confettiLayer");
+    const flowerLayer = document.getElementById("flowerLayer");
+    const closeCelebration = document.getElementById("closeCelebration");
+
+    const confettiColors = ["#ff5f93", "#ff84b0", "#ffd1e2", "#fff1f7", "#f93f74", "#ffb3cc"];
+    const flowerEmojis = ["🌸", "🌺", "🌷", "💮", "🪷"];
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let celebrationOn = false;
+    let confettiTimer = null;
+    let flowerTimer = null;
+
+    function randomBetween(min, max){
+      return min + Math.random() * (max - min);
+    }
+
+    function spawnConfettiPiece(delay = 0){
+      window.setTimeout(() => {
+        if (!celebrationOn) return;
+        const piece = document.createElement("span");
+        piece.className = "confettiPiece";
+        piece.style.left = `${randomBetween(0, 100)}%`;
+        piece.style.width = `${randomBetween(7, 12)}px`;
+        piece.style.height = `${randomBetween(12, 22)}px`;
+        piece.style.background = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        piece.style.animationDuration = `${randomBetween(2.6, 4.3)}s`;
+        piece.style.setProperty("--drift", `${randomBetween(-120, 120)}px`);
+        piece.style.setProperty("--spin", `${randomBetween(-360, 360)}deg`);
+        piece.style.setProperty("--tilt", `${randomBetween(-30, 30)}deg`);
+        confettiLayer.appendChild(piece);
+        window.setTimeout(() => piece.remove(), 4600);
+      }, delay);
+    }
+
+    function spawnFlowerBurst(originX, originY, count = 12){
+      for (let i = 0; i < count; i++){
+        const flower = document.createElement("span");
+        const angle = randomBetween(0, Math.PI * 2);
+        const distance = randomBetween(70, 230);
+        flower.className = "flowerPop";
+        flower.textContent = flowerEmojis[Math.floor(Math.random() * flowerEmojis.length)];
+        flower.style.left = `${originX}px`;
+        flower.style.top = `${originY}px`;
+        flower.style.setProperty("--x", `${Math.cos(angle) * distance}px`);
+        flower.style.setProperty("--y", `${Math.sin(angle) * distance}px`);
+        flower.style.setProperty("--rot", `${randomBetween(-160, 160)}deg`);
+        flower.style.animationDuration = `${randomBetween(1.4, 2.4)}s`;
+        flowerLayer.appendChild(flower);
+        window.setTimeout(() => flower.remove(), 2600);
+      }
+    }
+
+    function startCelebration(){
+      if (celebrationOn) return;
+      celebrationOn = true;
+      celebrationOverlay.classList.add("show");
+      celebrationOverlay.setAttribute("aria-hidden", "false");
+      if (prefersReducedMotion) return;
+
+      for (let i = 0; i < 90; i++) spawnConfettiPiece(i * 18);
+      spawnFlowerBurst(window.innerWidth / 2, window.innerHeight * 0.55, 20);
+
+      confettiTimer = window.setInterval(() => {
+        for (let i = 0; i < 9; i++) spawnConfettiPiece(i * 28);
+      }, 380);
+
+      flowerTimer = window.setInterval(() => {
+        const x = randomBetween(window.innerWidth * 0.18, window.innerWidth * 0.82);
+        const y = randomBetween(window.innerHeight * 0.26, window.innerHeight * 0.72);
+        spawnFlowerBurst(x, y, 8);
+      }, 980);
+    }
+
+    function stopCelebration(){
+      celebrationOn = false;
+      celebrationOverlay.classList.remove("show");
+      celebrationOverlay.setAttribute("aria-hidden", "true");
+      if (confettiTimer) window.clearInterval(confettiTimer);
+      if (flowerTimer) window.clearInterval(flowerTimer);
+      confettiTimer = null;
+      flowerTimer = null;
+      confettiLayer.innerHTML = "";
+      flowerLayer.innerHTML = "";
+    }
+
+    yesBtn.addEventListener("click", () => {
+      for (let i=0;i<16;i++) setTimeout(spawnHeart, i*100);
+
+      document.querySelector("h1").innerHTML =
+        `<span class="names">Nidhi</span>, you just made <span class="names">Shiven</span> the happiest 🥹💖`;
+      document.querySelector(".subtext").textContent =
+        "Okay… now I owe you a proper date, chocolates, and probably my hoodie.";
+
+      noBtn.style.display = "none";
+      yesBtn.textContent = "YAY!! 💖";
+
+      startCelebration();
+    });
+
+    closeCelebration.addEventListener("click", stopCelebration);
+    celebrationOverlay.addEventListener("click", (e) => {
+      if (e.target === celebrationOverlay) stopCelebration();
+    });
+  </script>
+</body>
+</html>
